@@ -1,0 +1,25 @@
+{
+  "name": "crm-directus",
+  "version": "1.0.0",
+  "description": "CRM basado en Directus con PostgreSQL",
+  "private": true,
+  "scripts": {
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "logs": "docker-compose logs -f directus",
+    "rebuild": "docker-compose up -d --build",
+    "schema:snapshot": "docker-compose exec directus npx directus schema snapshot ./snapshot.yaml",
+    "schema:apply": "docker-compose exec directus npx directus schema apply ./snapshot.yaml",
+    "schema:diff": "docker-compose exec directus npx directus schema diff ./snapshot.yaml",
+    "extension:build": "cd extensions/directus-extension-cotizador && npm run build",
+    "extension:dev": "cd extensions/directus-extension-cotizador && npm run dev"
+  },
+  "keywords": [
+    "directus",
+    "crm",
+    "postgresql",
+    "docker"
+  ],
+  "author": "CRM Team",
+  "license": "MIT"
+}

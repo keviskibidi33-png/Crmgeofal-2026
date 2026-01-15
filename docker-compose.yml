@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  directus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crm-directus
+    restart: unless-stopped
+    ports:
+      - "8055:8055"
+    environment:
+      KEY: ${DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET}
+      DB_CLIENT: pg
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8055}
+      # URL del cotizador para el iframe (desde el navegador del usuario)
+      COTIZADOR_EXTERNAL_URL: ${COTIZADOR_EXTERNAL_URL:-http://localhost:5173}
+      EXTENSIONS_PATH: /directus/extensions
+      # CSP para permitir iframe del cotizador
+      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: "http://localhost:5173 http://127.0.0.1:5173"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC: "'self' http://localhost:* http://127.0.0.1:*"
+    volumes:
+      - ./extensions:/directus/extensions
+      - ./uploads:/directus/uploads
+      - ./snapshot.yaml:/directus/snapshot.yaml
+    depends_on:
+      - postgres
+      - cotizador-api
+    networks:
+      - crm-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: crm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - crm-network
+
+  # ========================================
+  # COTIZADOR - Backend API (Python/FastAPI)
+  # ========================================
+  cotizador-api:
+    build:
+      context: ./cotizacion-twenty/quotes-service
+      dockerfile: Dockerfile
+    container_name: crm-cotizador-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Conexión a la misma DB que Directus
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      QUOTES_DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE}
+      QUOTES_CORS_ORIGINS: "*"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./cotizacion-twenty/Formato-cotizacion.xlsx:/app/Formato-cotizacion.xlsx
+    depends_on:
+      - postgres
+    networks:
+      - crm-network
+
+  # ========================================
+  # COTIZADOR - Frontend (React/Vite)
+  # ========================================
+  cotizador-web:
+    build:
+      context: ./cotizacion-twenty/cotizador-web
+      dockerfile: Dockerfile
+    container_name: crm-cotizador-web
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    environment:
+      VITE_QUOTES_API_URL: http://cotizador-api:8000
+    depends_on:
+      - cotizador-api
+    networks:
+      - crm-network
+
+volumes:
+  postgres_data:
+
+networks:
+  crm-network:
+    driver: bridge
