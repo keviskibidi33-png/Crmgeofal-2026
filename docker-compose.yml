@@ -38,7 +38,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.geofal-crm.rule=Host(`crm.geofal.com.pe`)"
-      - "traefik.http.routers.geofal-crm.entrypoints=websecure"
       - "traefik.http.routers.geofal-crm.tls.certresolver=letsencrypt"
       - "traefik.http.services.geofal-crm.loadbalancer.server.port=8055"
 
@@ -88,7 +87,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.geofal-api.rule=Host(`api.geofal.com.pe`)"
-      - "traefik.http.routers.geofal-api.entrypoints=websecure"
       - "traefik.http.routers.geofal-api.tls.certresolver=letsencrypt"
       - "traefik.http.services.geofal-api.loadbalancer.server.port=8000"
 
@@ -112,7 +110,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.geofal-cotizador.rule=Host(`cotizador.geofal.com.pe`)"
-      - "traefik.http.routers.geofal-cotizador.entrypoints=websecure"
       - "traefik.http.routers.geofal-cotizador.tls.certresolver=letsencrypt"
       - "traefik.http.services.geofal-cotizador.loadbalancer.server.port=80"
 
