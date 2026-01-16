@@ -1,29 +1,24 @@
 #!/bin/bash
 
+echo "=========================================="
+echo "GEOFAL CRM - Inicialización de Directus"
+echo "=========================================="
+
 # Wait for database to be ready
-echo "Waiting for database..."
-npx directus db:wait --timeout 60
+echo "[1/4] Esperando a que la base de datos esté lista..."
+sleep 5
 
-# Install Directus if not installed
-if ! npx directus database status; then
-    echo "Installing Directus..."
-    npx directus database install
+# Run bootstrap to install Directus tables
+echo "[2/4] Ejecutando bootstrap de Directus..."
+npx directus bootstrap
+
+# Check if custom tables exist, if not create them
+echo "[3/4] Verificando e importando schema del CRM..."
+if [ -f "/directus/scripts/init-schema.sql" ]; then
+    echo "Ejecutando script de inicialización SQL..."
+    PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_DATABASE -f /directus/scripts/init-schema.sql 2>/dev/null || echo "Schema ya existe o se creó correctamente"
 fi
 
-# Check if collections exist
-if ! npx directus schema list | grep -q "empresas"; then
-    echo "Importing schema and data..."
-    
-    # Import schema snapshot if exists
-    if [ -f "/directus/extensions/snapshot.json" ]; then
-        npx directus schema apply /directus/extensions/snapshot.json
-    fi
-    
-    # Import data if exists
-    if [ -f "/directus/extensions/data.json" ]; then
-        npx directus data import /directus/extensions/data.json
-    fi
-fi
-
-echo "Starting Directus..."
+echo "[4/4] Iniciando Directus..."
+echo "=========================================="
 npx directus start
