@@ -3,6 +3,9 @@
 -- ============================================
 -- Este script crea las tablas necesarias para el CRM
 
+-- Iniciar transacción
+BEGIN;
+
 -- Tabla: empresas
 CREATE TABLE IF NOT EXISTS empresas (
     id SERIAL PRIMARY KEY,
@@ -163,4 +166,5 @@ INSERT INTO directus_settings (id, project_name, project_descriptor, project_col
 SELECT 1, 'GEOFAL CRM', 'Sistema de Gestión de Cotizaciones', '#1E40AF', 'es-ES', 'Bienvenido al CRM de GEOFAL - Sistema de Cotizaciones'
 WHERE NOT EXISTS (SELECT 1 FROM directus_settings WHERE id = 1);
 
+-- Finalizar transacción
 COMMIT;
