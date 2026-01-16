@@ -19,7 +19,7 @@ COPY --chown=node:node ./extensions/directus-extension-cotizador /directus/exten
 # Copy initialization scripts
 COPY --chown=node:node ./scripts/init-directus.sh /directus/init-directus.sh
 COPY --chown=node:node ./scripts/init-schema.sql /directus/scripts/init-schema.sql
-RUN chmod +x /directus/init-directus.sh
+RUN chmod +x /directus/init-directus.sh && sed -i 's/\r$//' /directus/init-directus.sh
 
 # Set working directory
 WORKDIR /directus
