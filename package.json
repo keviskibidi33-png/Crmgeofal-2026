@@ -1,25 +1,24 @@
 {
-  "name": "crm-directus",
+  "name": "geofal-crm",
   "version": "1.0.0",
-  "description": "CRM basado en Directus con PostgreSQL",
+  "description": "Geofal CRM - Sistema de Cotizaciones",
   "private": true,
   "scripts": {
     "start": "docker-compose up -d",
     "stop": "docker-compose down",
-    "logs": "docker-compose logs -f directus",
+    "logs": "docker-compose logs -f geofal-crm",
     "rebuild": "docker-compose up -d --build",
-    "schema:snapshot": "docker-compose exec directus npx directus schema snapshot ./snapshot.yaml",
-    "schema:apply": "docker-compose exec directus npx directus schema apply ./snapshot.yaml",
-    "schema:diff": "docker-compose exec directus npx directus schema diff ./snapshot.yaml",
+    "schema:snapshot": "docker-compose exec geofal-crm npx directus schema snapshot ./snapshot.yaml",
+    "schema:apply": "docker-compose exec geofal-crm npx directus schema apply ./snapshot.yaml",
     "extension:build": "cd extensions/directus-extension-cotizador && npm run build",
     "extension:dev": "cd extensions/directus-extension-cotizador && npm run dev"
   },
   "keywords": [
-    "directus",
+    "geofal",
     "crm",
-    "postgresql",
+    "cotizaciones",
     "docker"
   ],
-  "author": "CRM Team",
+  "author": "Geofal Team",
   "license": "MIT"
 }

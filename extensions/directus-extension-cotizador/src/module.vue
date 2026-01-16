@@ -176,7 +176,8 @@ export default {
 			const params = new URLSearchParams({
 				user_id: currentUser.value.id,
 				email: currentUser.value.email || '',
-				name: `${currentUser.value.first_name || ''} ${currentUser.value.last_name || ''}`.trim()
+				name: `${currentUser.value.first_name || ''} ${currentUser.value.last_name || ''}`.trim(),
+				phone: currentUser.value.phone || currentUser.value.telefono || ''
 			});
 			return `${BASE_URL}?${params.toString()}`;
 		});

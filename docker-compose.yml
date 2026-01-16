@@ -1,12 +1,13 @@
 services:
-  directus:
+  # ========================================
+  # GEOFAL CRM - Main Application (Directus)
+  # ========================================
+  geofal-crm:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: crm-directus
+    container_name: geofal-crm
     restart: unless-stopped
-    ports:
-      - "8055:8055"
     environment:
       KEY: ${DIRECTUS_KEY}
       SECRET: ${DIRECTUS_SECRET}
@@ -18,37 +19,41 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8055}
-      # URL del cotizador para el iframe (desde el navegador del usuario)
-      COTIZADOR_EXTERNAL_URL: ${COTIZADOR_EXTERNAL_URL:-http://localhost:5173}
+      PUBLIC_URL: ${PUBLIC_URL:-https://crm.geofal.com}
+      COTIZADOR_EXTERNAL_URL: ${COTIZADOR_EXTERNAL_URL:-https://cotizador.geofal.com}
       EXTENSIONS_PATH: /directus/extensions
-      # CSP para permitir iframe del cotizador
-      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: "http://localhost:5173 http://127.0.0.1:5173"
-      CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC: "'self' http://localhost:* http://127.0.0.1:*"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: "${COTIZADOR_EXTERNAL_URL:-https://cotizador.geofal.com}"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC: "'self' ${COTIZADOR_API_URL:-https://api.geofal.com}"
     volumes:
       - ./extensions:/directus/extensions
-      - ./uploads:/directus/uploads
-      - ./snapshot.yaml:/directus/snapshot.yaml
+      - geofal_uploads:/directus/uploads
     depends_on:
       - postgres
       - cotizador-api
     networks:
-      - crm-network
+      - geofal-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.geofal-crm.rule=Host(`${CRM_DOMAIN:-crm.geofal.com}`)"
+      - "traefik.http.routers.geofal-crm.entrypoints=websecure"
+      - "traefik.http.routers.geofal-crm.tls.certresolver=letsencrypt"
+      - "traefik.http.services.geofal-crm.loadbalancer.server.port=8055"
 
+  # ========================================
+  # PostgreSQL Database
+  # ========================================
   postgres:
     image: postgres:15-alpine
-    container_name: crm-postgres
+    container_name: geofal-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - geofal_postgres_data:/var/lib/postgresql/data
     networks:
-      - crm-network
+      - geofal-network
 
   # ========================================
   # COTIZADOR - Backend API (Python/FastAPI)
@@ -57,12 +62,9 @@ services:
     build:
       context: ./cotizacion-twenty/quotes-service
       dockerfile: Dockerfile
-    container_name: crm-cotizador-api
+    container_name: geofal-cotizador-api
     restart: unless-stopped
-    ports:
-      - "8000:8000"
     environment:
-      # Conexión a la misma DB que Directus
       DB_HOST: postgres
       DB_PORT: 5432
       DB_DATABASE: ${DB_DATABASE}
@@ -70,13 +72,20 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       QUOTES_DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE}
       QUOTES_CORS_ORIGINS: "*"
+      DIRECTUS_URL: http://geofal-crm:8055
     volumes:
-      - ./uploads:/app/uploads
+      - geofal_uploads:/app/uploads
       - ./cotizacion-twenty/Formato-cotizacion.xlsx:/app/Formato-cotizacion.xlsx
     depends_on:
       - postgres
     networks:
-      - crm-network
+      - geofal-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.geofal-api.rule=Host(`${API_DOMAIN:-api.geofal.com}`)"
+      - "traefik.http.routers.geofal-api.entrypoints=websecure"
+      - "traefik.http.routers.geofal-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.geofal-api.loadbalancer.server.port=8000"
 
   # ========================================
   # COTIZADOR - Frontend (React/Vite)
@@ -85,20 +94,25 @@ services:
     build:
       context: ./cotizacion-twenty/cotizador-web
       dockerfile: Dockerfile
-    container_name: crm-cotizador-web
+      args:
+        VITE_QUOTES_API_URL: ${COTIZADOR_API_URL:-https://api.geofal.com}
+    container_name: geofal-cotizador-web
     restart: unless-stopped
-    ports:
-      - "5173:80"
-    environment:
-      VITE_QUOTES_API_URL: http://cotizador-api:8000
     depends_on:
       - cotizador-api
     networks:
-      - crm-network
+      - geofal-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.geofal-cotizador.rule=Host(`${COTIZADOR_DOMAIN:-cotizador.geofal.com}`)"
+      - "traefik.http.routers.geofal-cotizador.entrypoints=websecure"
+      - "traefik.http.routers.geofal-cotizador.tls.certresolver=letsencrypt"
+      - "traefik.http.services.geofal-cotizador.loadbalancer.server.port=80"
 
 volumes:
-  postgres_data:
+  geofal_postgres_data:
+  geofal_uploads:
 
 networks:
-  crm-network:
+  geofal-network:
     driver: bridge
