@@ -13,13 +13,10 @@ USER node
 # Create directories for extensions and uploads
 RUN mkdir -p /directus/extensions /directus/uploads /directus/scripts
 
-# Copy and build the custom extension
+# Copy pre-built custom extension (dist folder must be committed)
 COPY --chown=node:node ./extensions/directus-extension-cotizador /directus/extensions/directus-extension-cotizador
-WORKDIR /directus/extensions/directus-extension-cotizador
-RUN npm install && npm run build
 
 # Copy SQL initialization script
-WORKDIR /directus
 COPY --chown=node:node ./scripts/init-schema.sql /directus/scripts/init-schema.sql
 
 # Set working directory
