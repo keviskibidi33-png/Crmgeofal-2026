@@ -24,6 +24,7 @@ COPY --chown=node:node ./scripts/diagnose-and-fix.sh /directus/scripts/diagnose-
 COPY --chown=node:node ./scripts/fix-directus11.sql /directus/scripts/fix-directus11.sql
 COPY --chown=node:node ./scripts/fix-user-permissions.sql /directus/scripts/fix-user-permissions.sql
 COPY --chown=node:node ./scripts/emergency-fix.sql /directus/scripts/emergency-fix.sql
+COPY --chown=node:node ./scripts/uuid-fix.sql /directus/scripts/uuid-fix.sql
 
 # Set working directory
 WORKDIR /directus
@@ -31,5 +32,5 @@ WORKDIR /directus
 # Expose Directus port
 EXPOSE 8055
 
-# Default command - bootstrap, emergency fix, then start
-CMD ["sh", "-c", "echo 'Starting Directus bootstrap...' && sleep 5 && npx directus bootstrap && echo 'Applying emergency fix...' && PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_DATABASE -f /directus/scripts/emergency-fix.sql && echo 'Starting Directus...' && npx directus start"]
+# Default command - bootstrap, UUID fix, then start
+CMD ["sh", "-c", "echo 'Starting Directus bootstrap...' && sleep 5 && npx directus bootstrap && echo 'Applying UUID fix...' && PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_DATABASE -f /directus/scripts/uuid-fix.sql && echo 'Starting Directus...' && npx directus start"]
