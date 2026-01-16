@@ -122,34 +122,65 @@ VALUES ('quote_sequences', 'numbers', 'Secuencias de numeración', NULL, true, f
 ON CONFLICT (collection) DO NOTHING;
 
 -- ============================================
--- Permisos para el rol Admin
+-- Permisos y Políticas
 -- ============================================
 
--- Dar permisos completos a admin en todas las colecciones
-INSERT INTO directus_permissions (role, collection, action, permissions, validation, presets, fields)
-SELECT NULL, 'empresas', action, '{}', '{}', NULL, '*'
+-- En Directus 11+, el Admin tiene acceso completo por defecto.
+-- Creamos una política para usuarios autenticados con acceso a las colecciones CRM.
+
+-- Crear política "CRM Full Access" si no existe
+INSERT INTO directus_policies (id, name, icon, description, ip_access, enforce_tfa, admin_access, app_access)
+SELECT 
+    'crm-full-access-policy',
+    'CRM Full Access',
+    'verified_user',
+    'Acceso completo a las colecciones del CRM',
+    NULL,
+    false,
+    false,
+    true
+WHERE NOT EXISTS (SELECT 1 FROM directus_policies WHERE id = 'crm-full-access-policy');
+
+-- Permisos para la política CRM en empresas
+INSERT INTO directus_permissions (policy, collection, action, permissions, validation, presets, fields)
+SELECT 'crm-full-access-policy', 'empresas', action, '{}', '{}', NULL, '*'
 FROM unnest(ARRAY['create', 'read', 'update', 'delete']) AS action
 ON CONFLICT DO NOTHING;
 
-INSERT INTO directus_permissions (role, collection, action, permissions, validation, presets, fields)
-SELECT NULL, 'contactos', action, '{}', '{}', NULL, '*'
+-- Permisos para la política CRM en contactos
+INSERT INTO directus_permissions (policy, collection, action, permissions, validation, presets, fields)
+SELECT 'crm-full-access-policy', 'contactos', action, '{}', '{}', NULL, '*'
 FROM unnest(ARRAY['create', 'read', 'update', 'delete']) AS action
 ON CONFLICT DO NOTHING;
 
-INSERT INTO directus_permissions (role, collection, action, permissions, validation, presets, fields)
-SELECT NULL, 'cotizaciones', action, '{}', '{}', NULL, '*'
+-- Permisos para la política CRM en cotizaciones
+INSERT INTO directus_permissions (policy, collection, action, permissions, validation, presets, fields)
+SELECT 'crm-full-access-policy', 'cotizaciones', action, '{}', '{}', NULL, '*'
 FROM unnest(ARRAY['create', 'read', 'update', 'delete']) AS action
 ON CONFLICT DO NOTHING;
 
-INSERT INTO directus_permissions (role, collection, action, permissions, validation, presets, fields)
-SELECT NULL, 'cotizacion_items', action, '{}', '{}', NULL, '*'
+-- Permisos para la política CRM en cotizacion_items
+INSERT INTO directus_permissions (policy, collection, action, permissions, validation, presets, fields)
+SELECT 'crm-full-access-policy', 'cotizacion_items', action, '{}', '{}', NULL, '*'
 FROM unnest(ARRAY['create', 'read', 'update', 'delete']) AS action
 ON CONFLICT DO NOTHING;
 
-INSERT INTO directus_permissions (role, collection, action, permissions, validation, presets, fields)
-SELECT NULL, 'quote_sequences', action, '{}', '{}', NULL, '*'
+-- Permisos para la política CRM en quote_sequences
+INSERT INTO directus_permissions (policy, collection, action, permissions, validation, presets, fields)
+SELECT 'crm-full-access-policy', 'quote_sequences', action, '{}', '{}', NULL, '*'
 FROM unnest(ARRAY['create', 'read', 'update', 'delete']) AS action
 ON CONFLICT DO NOTHING;
+
+-- Asignar la política al rol Administrator
+INSERT INTO directus_access (id, role, "user", policy, sort)
+SELECT 
+    'admin-crm-access',
+    (SELECT id FROM directus_roles WHERE admin_access = true LIMIT 1),
+    NULL,
+    'crm-full-access-policy',
+    1
+WHERE NOT EXISTS (SELECT 1 FROM directus_access WHERE id = 'admin-crm-access')
+AND EXISTS (SELECT 1 FROM directus_roles WHERE admin_access = true);
 
 -- ============================================
 -- Índices para mejor rendimiento
