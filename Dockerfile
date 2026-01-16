@@ -11,9 +11,6 @@ RUN mkdir -p /directus/extensions /directus/uploads
 # Copy custom extension (without node_modules)
 COPY ./extensions/directus-extension-cotizador /directus/extensions/directus-extension-cotizador
 
-# Install extension dependencies
-RUN cd /directus/extensions/directus-extension-cotizador && npm install --production
-
 # Set working directory
 WORKDIR /directus
 
