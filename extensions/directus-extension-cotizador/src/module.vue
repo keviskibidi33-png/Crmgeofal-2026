@@ -167,9 +167,10 @@ export default {
 			return filteredQuotes.value.reduce((sum, q) => sum + Number(q.total || 0), 0);
 		});
 		
+		// URL del cotizador - usa el subdominio cotizador en producción
 		const BASE_URL = window.location.hostname === 'localhost' 
 			? 'http://localhost:5173'
-			: `${window.location.protocol}//${window.location.hostname}:5173`;
+			: 'https://cotizador.geofal.com.pe';
 		
 		const userURL = computed(() => {
 			if (!currentUser.value) return null;
@@ -267,7 +268,10 @@ export default {
 		
 		function downloadQuote(quote) {
 			if (quote.archivo_path) {
-				window.open(`http://localhost:8000/download/${quote.year}/${quote.numero}`, '_blank');
+				const apiUrl = window.location.hostname === 'localhost' 
+					? 'http://localhost:8000'
+					: 'https://api.geofal.com.pe';
+				window.open(`${apiUrl}/download/${quote.year}/${quote.numero}`, '_blank');
 			} else {
 				alert('No hay archivo disponible para esta cotización');
 			}
