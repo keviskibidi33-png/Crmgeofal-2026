@@ -11,11 +11,14 @@ RUN mkdir -p /directus/extensions /directus/uploads
 # Copy custom extension (without node_modules)
 COPY ./extensions/directus-extension-cotizador /directus/extensions/directus-extension-cotizador
 
+# Install extension dependencies
+RUN cd /directus/extensions/directus-extension-cotizador && npm install --production
+
 # Set working directory
 WORKDIR /directus
 
 # Expose Directus port
 EXPOSE 8055
 
-# Default command (Directus will use its own entrypoint)
-CMD ["npx", "directus", "start"]
+# Default command with database bootstrap
+CMD ["sh", "-c", "npx directus bootstrap && npx directus start"]
