@@ -25,5 +25,5 @@ WORKDIR /directus
 # Expose Directus port
 EXPOSE 8055
 
-# Default command - bootstrap then start (inline to avoid CRLF issues)
-CMD ["sh", "-c", "echo 'Starting Directus bootstrap...' && sleep 5 && npx directus bootstrap && echo 'Bootstrap complete. Starting Directus...' && npx directus start"]
+# Default command - bootstrap, apply schema, then start
+CMD ["sh", "-c", "echo 'Starting Directus bootstrap...' && sleep 5 && npx directus bootstrap && echo 'Applying GEOFAL CRM configuration...' && PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_DATABASE -f /directus/scripts/init-schema.sql 2>/dev/null || echo 'Schema already exists' && echo 'Starting Directus...' && npx directus start"]

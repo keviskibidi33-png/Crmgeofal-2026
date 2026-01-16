@@ -163,4 +163,22 @@ CREATE INDEX IF NOT EXISTS idx_cotizaciones_numero ON cotizaciones(numero);
 CREATE INDEX IF NOT EXISTS idx_cotizaciones_user_created ON cotizaciones(user_created);
 CREATE INDEX IF NOT EXISTS idx_cotizacion_items_cotizacion ON cotizacion_items(cotizacion_id);
 
+-- ============================================
+-- BRANDING Y CONFIGURACIÓN DEL PROYECTO
+-- ============================================
+
+-- Configurar branding de GEOFAL CRM
+UPDATE directus_settings SET
+    project_name = 'GEOFAL CRM',
+    project_descriptor = 'Sistema de Gestión de Cotizaciones',
+    project_color = '#1E40AF',
+    default_language = 'es-ES',
+    public_note = 'Bienvenido al CRM de GEOFAL - Sistema de Cotizaciones'
+WHERE id = 1;
+
+-- Si no existe, insertar configuración
+INSERT INTO directus_settings (id, project_name, project_descriptor, project_color, default_language, public_note)
+SELECT 1, 'GEOFAL CRM', 'Sistema de Gestión de Cotizaciones', '#1E40AF', 'es-ES', 'Bienvenido al CRM de GEOFAL - Sistema de Cotizaciones'
+WHERE NOT EXISTS (SELECT 1 FROM directus_settings WHERE id = 1);
+
 COMMIT;
