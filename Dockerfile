@@ -17,5 +17,9 @@ WORKDIR /directus
 # Expose Directus port
 EXPOSE 8055
 
-# Default command with database bootstrap
-CMD ["sh", "-c", "npx directus bootstrap && npx directus start"]
+# Copy initialization script
+COPY ./scripts/init-directus.sh /directus/init-directus.sh
+RUN chmod +x /directus/init-directus.sh
+
+# Default command with custom initialization
+CMD ["/directus/init-directus.sh"]
