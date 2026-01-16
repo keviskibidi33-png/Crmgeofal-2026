@@ -27,7 +27,6 @@ services:
       CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: "${COTIZADOR_EXTERNAL_URL:-https://cotizador.geofal.com}"
       CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC: "'self' ${COTIZADOR_API_URL:-https://api.geofal.com}"
     volumes:
-      - ./extensions:/directus/extensions
       - geofal_uploads:/directus/uploads
     depends_on:
       - postgres
