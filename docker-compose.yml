@@ -107,7 +107,7 @@ services:
     networks:
       - geofal-network
     ports:
-      - "8080:80"
+      - "8081:80"
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.http.routers.geofal-cotizador.rule=Host(`${COTIZADOR_DOMAIN:-cotizador.geofal.com}`)"
