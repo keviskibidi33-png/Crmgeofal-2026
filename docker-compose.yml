@@ -83,7 +83,7 @@ services:
     networks:
       - geofal-network
     ports:
-      - "8000:8000"
+      - "8001:8000"
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.http.routers.geofal-api.rule=Host(`${API_DOMAIN:-api.geofal.com}`)"
@@ -107,7 +107,7 @@ services:
     networks:
       - geofal-network
     ports:
-      - "80:80"
+      - "8080:80"
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.http.routers.geofal-cotizador.rule=Host(`${COTIZADOR_DOMAIN:-cotizador.geofal.com}`)"
