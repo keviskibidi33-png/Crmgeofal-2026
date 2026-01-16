@@ -16,10 +16,8 @@ RUN mkdir -p /directus/extensions /directus/uploads /directus/scripts
 # Copy custom extension (without node_modules)
 COPY --chown=node:node ./extensions/directus-extension-cotizador /directus/extensions/directus-extension-cotizador
 
-# Copy initialization scripts
-COPY --chown=node:node ./scripts/init-directus.sh /directus/init-directus.sh
+# Copy SQL initialization script
 COPY --chown=node:node ./scripts/init-schema.sql /directus/scripts/init-schema.sql
-RUN chmod +x /directus/init-directus.sh && sed -i 's/\r$//' /directus/init-directus.sh
 
 # Set working directory
 WORKDIR /directus
@@ -27,5 +25,5 @@ WORKDIR /directus
 # Expose Directus port
 EXPOSE 8055
 
-# Default command with custom initialization
-CMD ["/directus/init-directus.sh"]
+# Default command - bootstrap then start (inline to avoid CRLF issues)
+CMD ["sh", "-c", "echo 'Starting Directus bootstrap...' && sleep 5 && npx directus bootstrap && echo 'Bootstrap complete. Starting Directus...' && npx directus start"]
