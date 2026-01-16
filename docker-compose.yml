@@ -32,12 +32,14 @@ services:
       - cotizador-api
     networks:
       - geofal-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.geofal-crm.rule=Host(`${CRM_DOMAIN:-crm.geofal.com}`)"
-      - "traefik.http.routers.geofal-crm.entrypoints=websecure"
-      - "traefik.http.routers.geofal-crm.tls.certresolver=letsencrypt"
-      - "traefik.http.services.geofal-crm.loadbalancer.server.port=8055"
+    ports:
+      - "8055:8055"
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.geofal-crm.rule=Host(`${CRM_DOMAIN:-crm.geofal.com}`)"
+    #   - "traefik.http.routers.geofal-crm.entrypoints=websecure"
+    #   - "traefik.http.routers.geofal-crm.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.geofal-crm.loadbalancer.server.port=8055"
 
   # ========================================
   # PostgreSQL Database
@@ -80,12 +82,14 @@ services:
       - postgres
     networks:
       - geofal-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.geofal-api.rule=Host(`${API_DOMAIN:-api.geofal.com}`)"
-      - "traefik.http.routers.geofal-api.entrypoints=websecure"
-      - "traefik.http.routers.geofal-api.tls.certresolver=letsencrypt"
-      - "traefik.http.services.geofal-api.loadbalancer.server.port=8000"
+    ports:
+      - "8000:8000"
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.geofal-api.rule=Host(`${API_DOMAIN:-api.geofal.com}`)"
+    #   - "traefik.http.routers.geofal-api.entrypoints=websecure"
+    #   - "traefik.http.routers.geofal-api.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.geofal-api.loadbalancer.server.port=8000"
 
   # ========================================
   # COTIZADOR - Frontend (React/Vite)
@@ -102,12 +106,14 @@ services:
       - cotizador-api
     networks:
       - geofal-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.geofal-cotizador.rule=Host(`${COTIZADOR_DOMAIN:-cotizador.geofal.com}`)"
-      - "traefik.http.routers.geofal-cotizador.entrypoints=websecure"
-      - "traefik.http.routers.geofal-cotizador.tls.certresolver=letsencrypt"
-      - "traefik.http.services.geofal-cotizador.loadbalancer.server.port=80"
+    ports:
+      - "80:80"
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.geofal-cotizador.rule=Host(`${COTIZADOR_DOMAIN:-cotizador.geofal.com}`)"
+    #   - "traefik.http.routers.geofal-cotizador.entrypoints=websecure"
+    #   - "traefik.http.routers.geofal-cotizador.tls.certresolver=letsencrypt"
+    #   - "traefik.http.services.geofal-cotizador.loadbalancer.server.port=80"
 
 volumes:
   geofal_postgres_data:
