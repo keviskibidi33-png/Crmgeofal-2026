@@ -122,11 +122,16 @@ VALUES ('quote_sequences', 'numbers', 'Secuencias de numeración', NULL, true, f
 ON CONFLICT (collection) DO NOTHING;
 
 -- ============================================
--- Permisos - Directus 11+
+-- Permisos para Administrator
 -- ============================================
--- NOTA: En Directus 11+, el rol Administrator tiene acceso completo 
--- a todas las colecciones por defecto. No se necesitan permisos explícitos.
--- Las colecciones ya están registradas arriba, lo que es suficiente.
+-- Dar permisos completos al rol Administrator en colecciones personalizadas
+
+INSERT INTO directus_permissions (role, collection, action, permissions, validation, presets, fields)
+SELECT r.id, c.collection, action, '{}', '{}', NULL, '*'
+FROM directus_collections c, directus_roles r, unnest(ARRAY['create', 'read', 'update', 'delete']) AS action
+WHERE r.admin_access = true 
+AND c.collection IN ('empresas', 'contactos', 'cotizaciones', 'cotizacion_items', 'quote_sequences')
+ON CONFLICT (role, collection, action) DO NOTHING;
 
 -- ============================================
 -- Índices para mejor rendimiento
