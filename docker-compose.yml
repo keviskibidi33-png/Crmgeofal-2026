@@ -22,10 +22,10 @@ services:
       PUBLIC_URL: ${PUBLIC_URL:-https://crm.geofal.com.pe}
       # Force database installation
       DIRECTUS_INSTALL_AUTO: "true"
-      COTIZADOR_EXTERNAL_URL: ${COTIZADOR_EXTERNAL_URL:-https://cotizador.geofal.com}
+      COTIZADOR_EXTERNAL_URL: https://cotizador.geofal.com.pe
       EXTENSIONS_PATH: /directus/extensions
-      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: "${COTIZADOR_EXTERNAL_URL:-https://cotizador.geofal.com}"
-      CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC: "'self' ${COTIZADOR_API_URL:-https://api.geofal.com}"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: "https://cotizador.geofal.com.pe"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC: "'self' https://api.geofal.com.pe"
     volumes:
       - geofal_uploads:/directus/uploads
     depends_on:
@@ -100,7 +100,7 @@ services:
       context: ./cotizacion-twenty/cotizador-web
       dockerfile: Dockerfile
       args:
-        VITE_QUOTES_API_URL: ${COTIZADOR_API_URL:-https://api.geofal.com}
+        VITE_QUOTES_API_URL: https://api.geofal.com.pe
     container_name: geofal-cotizador-web
     restart: unless-stopped
     depends_on:
