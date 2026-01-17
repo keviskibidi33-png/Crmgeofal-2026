@@ -1,0 +1,30 @@
+# Version control
+.git
+.gitignore
+
+# Local dependencies (re-installed inside the container)
+node_modules
+pnpm-lock.yaml
+yarn.lock
+
+# Local environment secrets
+.env
+.env.*
+
+# Local Docker helpers
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Data & generated assets handled via volumes
+uploads
+database
+extensions/node_modules
+
+# Legacy scripts no longer needed in the image
+scripts
+
+# Misc system junk
+npm-debug.log*
+.DS_Store
+Thumbs.db
